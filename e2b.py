@@ -42,9 +42,9 @@ def convert_links(file):
             # the re.sub expression below turns ALL colored text into highlighted text in bear by wrapping the text in == * ==
             #content = re.sub(r'(<span style="color:rgb[^>]*?>\s*)(.*?)(\s*</span>?)', r"==\2==", content)
             # the re.sub expression below turns green (rgb 24, 168, 65) colored text into highlighted text in bear by wrapping the text in "== * =="
-            content = re.sub(r'(<span style="color:rgb\(24, 168, 65\);--inversion-type-color:simple;">\s*)(.*?)(\s*</span>?)', r"==\2==", content)
+            #content = re.sub(r'(<span style="color:rgb\(24, 168, 65\);--inversion-type-color:simple;">\s*)(.*?)(\s*</span>?)', r"==\2==", content)
             # the re.sub expression below turns purple (rgb 182, 41, 212) colored text into highlighted and underlined text in bear by wrapping the text in "==~ * ~=="
-            content = re.sub(r'(<span style="color:rgb\(182, 41, 212\);--inversion-type-color:simple;">\s*)(.*?)(\s*</span>?)', r"==~\2~==", content)
+            #content = re.sub(r'(<span style="color:rgb\(182, 41, 212\);--inversion-type-color:simple;">\s*)(.*?)(\s*</span>?)', r"==~\2~==", content)
             with open(f"{os.path.dirname(file)}/bear/{file.name}", "x") as new_enex:
                 new_enex.write(content)
             print("Done. New file available in the bear subdirectory.")
