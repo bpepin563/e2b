@@ -29,22 +29,29 @@ def convert_links(file):
     ---
     - Replace Evernote note link URIs, but not other URIs, with Bear note links
     - Replace colored text from Evernote with Highlighted text in Bear Note
+    - Fix niche formatting bbug
     - Write to a new file in the bear subdirectory
     """
     try:
         print(f"Converting {file.name}...")
         with open(file) as enex:
             content = enex.read()
+            # choose which features you want to run by simply commenting out whatever you don't want to use...
+            # use EITHER line 41 OR line 43, NOT both.
             # the re.sub expression below converts evernote wiki links to Bear note wiki links by replacing all evernote:/// links with the actual name of the evernote note wrapped in [[ ]]
-            content = re.sub(r'(<a[^>]*?href="evernote[^>]*?>)(.*?)(</a>?)', r"[[\2]]", content)
-            # the re.sub expression below escapes all "/" found between [[ ]] by replaceing them with "\/" (which is neccessary because otherwise Bear creates a new note when the wiki is clicked)
+            #content = re.sub(r'(<a[^>]*?href="evernote[^>]*?>)(.*?)(</a>?)', r"[[\2]]", content)
+            # the re.sub expression below converts evernote wiki links to Bear note wiki links by replacing all evernote:/// links with the actual name of the evernote note wrapped in [[ ]] and adds a hyperlink to the original evernote note labeled simply as {ev} so that if the original note name has been changed you can still find the original note.
+            content = re.sub(r'(<a[^>]*?href="(evernote[^"]*?)"[^>]*?>)(.*?)(</a>?)', r"[[\3]] [{ev}](\2)", content)
+            # the re.sub expression below escapes all "/" found between [[ ]] by replaceing them with "\/" (which is neccessary because otherwise Bear creates a new note when the wiki is clicked). Only neccesary if you have "/" in your note names
             content = re.sub(r'\[\[[^\]]*\/[^\]]*\]\]', lambda x: x.group().replace('/', '\\/'), content) 
             # the re.sub expression below turns ALL colored text into highlighted text in bear by wrapping the text in == * ==
             #content = re.sub(r'(<span style="color:rgb[^>]*?>\s*)(.*?)(\s*</span>?)', r"==\2==", content)
             # the re.sub expression below turns green (rgb 24, 168, 65) colored text into highlighted text in bear by wrapping the text in "== * =="
-            #content = re.sub(r'(<span style="color:rgb\(24, 168, 65\);--inversion-type-color:simple;">\s*)(.*?)(\s*</span>?)', r"==\2==", content)
+            content = re.sub(r'(<span style="color:rgb\(24, 168, 65\);--inversion-type-color:simple;">\s*)(.*?)(\s*</span>?)', r"==\2==", content)
             # the re.sub expression below turns purple (rgb 182, 41, 212) colored text into highlighted and underlined text in bear by wrapping the text in "==~ * ~=="
-            #content = re.sub(r'(<span style="color:rgb\(182, 41, 212\);--inversion-type-color:simple;">\s*)(.*?)(\s*</span>?)', r"==~\2~==", content)
+            content = re.sub(r'(<span style="color:rgb\(182, 41, 212\);--inversion-type-color:simple;">\s*)(.*?)(\s*</span>?)', r"~==\2==~", content)
+            # the re.sub expression below fixes a very niche issue where bear incorrectly applies markdown formatting to specifically formatted text. See https://beta.bear.app/t/markdown-formatting-bug-when-importing-from-evernote/11865 for more details.
+            content = re.sub(r'\s*//</([bi])>\s*', r"</\1> <\1>//</\1> ", content)
             with open(f"{os.path.dirname(file)}/bear/{file.name}", "x") as new_enex:
                 new_enex.write(content)
             print("Done. New file available in the bear subdirectory.")
